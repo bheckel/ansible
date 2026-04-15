@@ -52,7 +52,7 @@ Example:
 
 ```ini
 [oci]
-sandcastle ansible_host=YOUR_IP ansible_user=opc ansible_ssh_private_key_file=~/.ssh/id_rsa
+YOUR_HOSTNAME ansible_host=YOUR_IP ansible_user=YOUR_USER ansible_ssh_private_key_file=~/.ssh/id_rsa
 ```
 
 ---
@@ -70,7 +70,7 @@ Run specific components:
 ```bash
 ansible-playbook site.yml --tags base
 ansible-playbook site.yml --tags dotfiles
-ansible-playbook site.yml --tags hardening
+ansible-playbook site.yml --tags "base,hardening"
 ```
 
 Run standalone Fail2ban setup:
