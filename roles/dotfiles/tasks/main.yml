@@ -1,0 +1,74 @@
+---
+- name: Install personal packages
+  become: true
+  dnf:
+    name: "{{ dotfiles_packages_oracle }}"
+    state: present
+  when: ansible_distribution == "OracleLinux"
+
+- name: Ensure ~/bin exists
+  become: false
+  file:
+    path: "{{ dotfiles_bin_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure ~/tmp exists
+  become: false
+  file:
+    path: "{{ dotfiles_tmp_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure ~/ses exists
+  become: false
+  file:
+    path: "{{ dotfiles_session_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: Ensure dotfiles repo parent exists
+  become: false
+  file:
+    path: "{{ dotfiles_repo_dir | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: Clone or update dotfiles repo
+  become: false
+  git:
+    repo: "{{ dotfiles_repo }}"
+    dest: "{{ dotfiles_repo_dir }}"
+    version: "{{ dotfiles_repo_version }}"
+    update: true
+    accept_hostkey: true
+
+- name: Check current dotfile paths
+  become: false
+  stat:
+    path: "{{ dotfiles_home }}/.{{ item }}"
+  loop: "{{ dotfiles_files }}"
+  register: dotfile_stats
+
+- name: Back up existing non-managed dotfiles once
+  become: false
+  command: >
+    mv "{{ dotfiles_home }}/.{{ item.item }}"
+       "{{ dotfiles_home }}/.{{ item.item }}.ORIG"
+  args:
+    creates: "{{ dotfiles_home }}/.{{ item.item }}.ORIG"
+  loop: "{{ dotfile_stats.results }}"
+  when:
+    - item.stat.exists or item.stat.islnk | default(false)
+    - not (item.stat.islnk | default(false) and item.stat.lnk_source == dotfiles_repo_dir + '/_' + item.item)
+  loop_control:
+    label: "{{ item.item }}"
+
+- name: Create managed dotfile symlinks
+  become: false
+  file:
+    src: "{{ dotfiles_repo_dir }}/_{{ item }}"
+    dest: "{{ dotfiles_home }}/.{{ item }}"
+    state: link
+    force: true
+  loop: "{{ dotfiles_files }}"

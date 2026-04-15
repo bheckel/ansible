@@ -1,0 +1,13 @@
+---
+- name: Basic server setup
+  hosts: oci
+
+  roles:
+    - role: base
+      tags: base
+
+    - role: hardening
+      tags: hardening
+
+    - role: dotfiles
+      tags: dotfiles

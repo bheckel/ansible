@@ -1,0 +1,25 @@
+---
+dotfiles_repo: "https://github.com/bheckel/dotfiles.git"
+dotfiles_repo_version: "master"
+dotfiles_repo_dir: "{{ ansible_env.HOME }}/dotfiles"
+dotfiles_user: "{{ ansible_user }}"
+dotfiles_home: "/home/{{ dotfiles_user }}"
+
+dotfiles_files:
+  - bashrc
+  - vimrc
+  - tmux.conf
+  - inputrc
+  - gitconfig
+
+dotfiles_packages_oracle:
+  - bc
+  - git
+  - tmux
+  - tree
+  - vim-enhanced
+  - w3m
+
+dotfiles_bin_dir: "{{ dotfiles_home }}/bin"
+dotfiles_tmp_dir: "{{ dotfiles_home }}/tmp"
+dotfiles_session_dir: "{{ dotfiles_home }}/ses"

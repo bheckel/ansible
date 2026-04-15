@@ -1,0 +1,48 @@
+---
+- name: Ensure fail2ban is installed
+  become: true
+  dnf:
+    name: fail2ban
+    state: present
+
+- name: Ensure auditd is running
+  become: true
+  service:
+    name: auditd
+    state: started
+    enabled: true
+
+#    - name: Install audit logrotate policy
+#      become: true
+#      copy:
+#        dest: /etc/logrotate.d/audit
+#        mode: "0644"
+#        content: |
+#          /var/log/audit/audit.log {
+#              daily
+#              rotate 14
+#              compress
+#              missingok
+#              create 0600 root root
+#              postrotate
+#                  /usr/sbin/service auditd rotate >/dev/null 2>&1 || true
+#              endscript
+#          }
+
+- name: Gather facts about disk usage
+  command: df -h /var/log/audit
+  register: disk_usage
+  changed_when: false
+
+- name: Show disk usage
+  debug:
+    msg: "{{ disk_usage.stdout }}"
+
+- name: Gather facts about memory usage
+  command: free -h
+  register: mem_usage
+  changed_when: false
+
+- name: Show memory usage
+  debug:
+    msg: "{{ mem_usage.stdout }}"

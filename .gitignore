@@ -1,0 +1,10 @@
+.venv/
+*.retry
+inventory.ini
+*.log
+*.tmp
+*.swp
+vault_pass.txt
+group_vars/all/vault.yml
+host_vars/
+readme.txt

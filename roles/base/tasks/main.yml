@@ -1,0 +1,32 @@
+---
+- name: Update all packages
+  become: true
+  dnf:
+    name: '*'
+    state: latest
+
+- name: Ensure firewalld is running
+  become: true
+  systemd:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: Allow SSH through firewall
+  become: true
+  firewalld:
+    service: ssh
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: Set timezone
+  become: true
+  command: timedatectl set-timezone America/New_York
+
+- name: Ensure chronyd is running
+  become: true
+  systemd:
+    name: chronyd
+    state: started
+    enabled: yes

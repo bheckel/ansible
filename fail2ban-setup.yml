@@ -1,0 +1,67 @@
+---
+- name: Install and configure fail2ban
+  hosts: oci
+  become: true
+
+  tasks:
+    - name: Ensure fail2ban is installed
+      dnf:
+        name: fail2ban
+        state: present
+
+    - name: Ensure fail2ban config directory exists
+      file:
+        path: /etc/fail2ban
+        state: directory
+        mode: "0755"
+
+    - name: Install jail.local
+      copy:
+        dest: /etc/fail2ban/jail.local
+        mode: "0644"
+        content: |
+          [DEFAULT]
+          bantime = 1h
+          findtime = 10m
+          maxretry = 5
+          backend = systemd
+          #banaction = firewallcmd-ipset
+          #banaction = iptables-multiport  # Oracle 8
+          banaction = firewallcmd-rich-rules
+          ignoreip = 127.0.0.1/8 ::1 # [MY LOCAL IP]
+
+          [sshd]
+          enabled = true
+          port = ssh
+          backend = systemd
+      notify: Restart fail2ban
+
+    - name: Ensure fail2ban is enabled and running
+      service:
+        name: fail2ban
+        state: started
+        enabled: true
+
+    - name: Check fail2ban overall status
+      command: fail2ban-client status
+      register: fail2ban_status
+      changed_when: false
+
+    - name: Show fail2ban overall status
+      debug:
+        msg: "{{ fail2ban_status.stdout }}"
+
+    - name: Check sshd jail status
+      command: fail2ban-client status sshd
+      register: fail2ban_sshd_status
+      changed_when: false
+
+    - name: Show sshd jail status
+      debug:
+        msg: "{{ fail2ban_sshd_status.stdout }}"
+
+  handlers:
+    - name: Restart fail2ban
+      service:
+        name: fail2ban
+        state: restarted
