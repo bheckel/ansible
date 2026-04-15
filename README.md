@@ -27,7 +27,7 @@ This repo contains:
 ## Requirements
 
 * Control node: Linux / WSL with Python 3
-* Target: Oracle Linux 9 (OCI)
+* Target: Oracle Linux (OCI)
 * SSH key access to target host
 
 Install Ansible (recommended via venv):
